@@ -1,5 +1,8 @@
 package com.project.logitracksv.entity;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,13 +21,22 @@ public class VehiculoEntity {
     @Id
     private String id;
 
+    @NotBlank
     private String placa;
+
+    @NotBlank
     private String modelo;
+
+    @NotNull
     private Integer anio;
+
+    @NotBlank
     private String estado;
 
+    @Valid
     private ConductorAsignado conductorAsignado;
 
+    @Valid
     private List<Sensor> sensoresInstalados;
 
     private LocalDate ultimaMantenimiento;

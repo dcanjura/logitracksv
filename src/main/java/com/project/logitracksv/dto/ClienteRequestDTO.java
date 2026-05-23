@@ -1,9 +1,11 @@
 package com.project.logitracksv.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record ClienteRequestDTO(
-        String nombre,
-        String direccion,
-        String telefono,
-        String email,
-        String estado
+        @NotBlank String nombre,
+        @NotBlank String direccion,
+        @NotBlank String telefono,
+        @NotBlank String email,
+        @NotBlank String estado
 ) {}

@@ -1,7 +1,9 @@
 package com.project.logitracksv.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record ConductorAsignadoDTO(
-        String conductorId,
-        String nombre,
-        String licencia
+        @NotBlank String conductorId,
+        @NotBlank String nombre,
+        @NotBlank String licencia
 ) {}

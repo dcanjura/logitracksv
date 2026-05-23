@@ -1,5 +1,6 @@
 package com.project.logitracksv.entity;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Data
@@ -8,6 +9,9 @@ import lombok.*;
 @AllArgsConstructor
 public class ClienteRef {
 
+    @NotBlank
     private String clienteId;
+
+    @NotBlank
     private String nombre;
 }
