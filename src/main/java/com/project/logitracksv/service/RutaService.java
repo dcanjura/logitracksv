@@ -3,6 +3,7 @@ package com.project.logitracksv.service;
 import com.project.logitracksv.dto.RutaRequestDTO;
 import com.project.logitracksv.dto.RutaResponseDTO;
 import com.project.logitracksv.entity.RutaEntity;
+import com.project.logitracksv.exception.ResourceNotFoundException;
 import com.project.logitracksv.mapper.RutaMapper;
 import com.project.logitracksv.repository.RutaRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class RutaService {
     // READ BY ID
     public RutaResponseDTO obtenerPorId(String id) {
         RutaEntity entity = rutaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ruta no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Ruta no encontrada"));
 
         return RutaMapper.toDTO(entity);
     }
@@ -39,7 +40,7 @@ public class RutaService {
     // UPDATE
     public RutaResponseDTO actualizar(String id, RutaRequestDTO dto) {
         RutaEntity existente = rutaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ruta no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Ruta no encontrada"));
 
         existente.setCliente(RutaMapper.toEntity(dto).getCliente());
         existente.setVehiculo(RutaMapper.toEntity(dto).getVehiculo());
@@ -55,6 +56,10 @@ public class RutaService {
 
     // DELETE
     public void eliminar(String id) {
+        if (!rutaRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Ruta no encontrada");
+        }
+
         rutaRepository.deleteById(id);
     }
 

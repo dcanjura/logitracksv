@@ -3,6 +3,7 @@ package com.project.logitracksv.service;
 import com.project.logitracksv.dto.VehiculoRequestDTO;
 import com.project.logitracksv.dto.VehiculoResponseDTO;
 import com.project.logitracksv.entity.VehiculoEntity;
+import com.project.logitracksv.exception.ResourceNotFoundException;
 import com.project.logitracksv.mapper.VehiculoMapper;
 import com.project.logitracksv.repository.VehiculoRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class VehiculoService {
     // READ BY ID
     public VehiculoResponseDTO obtenerPorId(String id) {
         VehiculoEntity entity = vehiculoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vehículo no encontrado"));
 
         return VehiculoMapper.toDTO(entity);
     }
@@ -39,7 +40,7 @@ public class VehiculoService {
     // UPDATE
     public VehiculoResponseDTO actualizar(String id, VehiculoRequestDTO dto) {
         VehiculoEntity existente = vehiculoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vehículo no encontrado"));
 
         existente.setPlaca(dto.placa());
         existente.setModelo(dto.modelo());
@@ -58,6 +59,10 @@ public class VehiculoService {
 
     // DELETE
     public void eliminar(String id) {
+        if (!vehiculoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Vehículo no encontrado");
+        }
+
         vehiculoRepository.deleteById(id);
     }
 }

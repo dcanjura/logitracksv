@@ -3,6 +3,7 @@ package com.project.logitracksv.service;
 import com.project.logitracksv.dto.AlertaRequestDTO;
 import com.project.logitracksv.dto.AlertaResponseDTO;
 import com.project.logitracksv.entity.AlertaEntity;
+import com.project.logitracksv.exception.ResourceNotFoundException;
 import com.project.logitracksv.mapper.AlertaMapper;
 import com.project.logitracksv.repository.AlertaRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class AlertaService {
     // READ BY ID
     public AlertaResponseDTO obtenerPorId(String id) {
         AlertaEntity entity = alertaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Alerta no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Alerta no encontrada"));
 
         return AlertaMapper.toDTO(entity);
     }
@@ -39,7 +40,7 @@ public class AlertaService {
     // UPDATE
     public AlertaResponseDTO actualizar(String id, AlertaRequestDTO dto) {
         AlertaEntity existente = alertaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Alerta no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Alerta no encontrada"));
 
         existente.setVehiculoId(dto.vehiculoId());
         existente.setTipoAlerta(dto.tipoAlerta());
@@ -53,6 +54,10 @@ public class AlertaService {
 
     // DELETE
     public void eliminar(String id) {
+        if (!alertaRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Alerta no encontrada");
+        }
+
         alertaRepository.deleteById(id);
     }
 
