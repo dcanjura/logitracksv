@@ -3,6 +3,7 @@ package com.project.logitracksv.controller;
 import com.project.logitracksv.dto.AlertaRequestDTO;
 import com.project.logitracksv.dto.AlertaResponseDTO;
 import com.project.logitracksv.service.AlertaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ public class AlertaController {
 
     // CREATE
     @PostMapping
-    public AlertaResponseDTO crear(@RequestBody AlertaRequestDTO alerta) {
+    public AlertaResponseDTO crear(@Valid @RequestBody AlertaRequestDTO alerta) {
         return alertaService.crear(alerta);
     }
 
@@ -36,7 +37,7 @@ public class AlertaController {
     // UPDATE
     @PutMapping("/{id}")
     public AlertaResponseDTO actualizar(@PathVariable String id,
-                                        @RequestBody AlertaRequestDTO alerta) {
+                                        @Valid @RequestBody AlertaRequestDTO alerta) {
         return alertaService.actualizar(id, alerta);
     }
 

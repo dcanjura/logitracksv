@@ -3,6 +3,7 @@ package com.project.logitracksv.controller;
 import com.project.logitracksv.dto.ClienteRequestDTO;
 import com.project.logitracksv.dto.ClienteResponseDTO;
 import com.project.logitracksv.service.ClienteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ public class ClienteController {
 
     // CREATE
     @PostMapping
-    public ClienteResponseDTO crear(@RequestBody ClienteRequestDTO cliente) {
+    public ClienteResponseDTO crear(@Valid @RequestBody ClienteRequestDTO cliente) {
         return clienteService.crear(cliente);
     }
 
@@ -36,7 +37,7 @@ public class ClienteController {
     // UPDATE
     @PutMapping("/{id}")
     public ClienteResponseDTO actualizar(@PathVariable String id,
-                                         @RequestBody ClienteRequestDTO cliente) {
+                                         @Valid @RequestBody ClienteRequestDTO cliente) {
         return clienteService.actualizar(id, cliente);
     }
 

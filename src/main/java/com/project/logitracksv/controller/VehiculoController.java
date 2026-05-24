@@ -3,6 +3,7 @@ package com.project.logitracksv.controller;
 import com.project.logitracksv.dto.VehiculoRequestDTO;
 import com.project.logitracksv.dto.VehiculoResponseDTO;
 import com.project.logitracksv.service.VehiculoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ public class VehiculoController {
 
     // CREATE
     @PostMapping
-    public VehiculoResponseDTO crear(@RequestBody VehiculoRequestDTO vehiculo) {
+    public VehiculoResponseDTO crear(@Valid @RequestBody VehiculoRequestDTO vehiculo) {
         return vehiculoService.crear(vehiculo);
     }
 
@@ -36,7 +37,7 @@ public class VehiculoController {
     // UPDATE
     @PutMapping("/{id}")
     public VehiculoResponseDTO actualizar(@PathVariable String id,
-                                          @RequestBody VehiculoRequestDTO vehiculo) {
+                                          @Valid @RequestBody VehiculoRequestDTO vehiculo) {
         return vehiculoService.actualizar(id, vehiculo);
     }
 

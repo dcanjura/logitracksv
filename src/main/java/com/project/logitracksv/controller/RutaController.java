@@ -3,6 +3,7 @@ package com.project.logitracksv.controller;
 import com.project.logitracksv.dto.RutaRequestDTO;
 import com.project.logitracksv.dto.RutaResponseDTO;
 import com.project.logitracksv.service.RutaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ public class RutaController {
 
     // CREATE
     @PostMapping
-    public RutaResponseDTO crear(@RequestBody RutaRequestDTO ruta) {
+    public RutaResponseDTO crear(@Valid @RequestBody RutaRequestDTO ruta) {
         return rutaService.crear(ruta);
     }
 
@@ -36,7 +37,7 @@ public class RutaController {
     // UPDATE
     @PutMapping("/{id}")
     public RutaResponseDTO actualizar(@PathVariable String id,
-                                      @RequestBody RutaRequestDTO ruta) {
+                                      @Valid @RequestBody RutaRequestDTO ruta) {
         return rutaService.actualizar(id, ruta);
     }
 
