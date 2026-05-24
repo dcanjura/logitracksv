@@ -51,6 +51,27 @@ Colecciones principales:
 
 ---
 
+### Cassandra
+
+Cassandra se utiliza para almacenar información de telemetría, debido a su capacidad para manejar grandes volúmenes de escritura y datos distribuidos.
+
+Keyspace:
+
+```text
+logitracksv
+```
+
+Tabla principal:
+
+* telemetria
+
+Nodos Cassandra utilizados:
+
+* cassandra-seed
+* cassandra-node2
+
+---
+
 ## Configuración
 
 ### application.properties
@@ -79,6 +100,75 @@ mvn spring-boot:run
 ```
 http://localhost:8080/swagger-ui/index.html
 ```
+
+## Verificación de Cassandra
+
+Para verificar que los contenedores de Cassandra estén activos:
+
+```bash
+docker ps
+```
+
+Para verificar el estado del clúster:
+
+```bash
+docker exec -it cassandra-seed nodetool status
+```
+
+El estado esperado para los nodos es:
+
+```text
+UN
+```
+
+Donde:
+
+* U = Up
+* N = Normal
+
+---
+
+## Consultar datos en Cassandra
+
+Para ingresar a Cassandra:
+
+```bash
+docker exec -it cassandra-seed cqlsh
+```
+
+Seleccionar el keyspace:
+
+```sql
+USE logitracksv;
+```
+
+Mostrar tablas:
+
+```sql
+DESCRIBE TABLES;
+```
+
+Consultar registros de telemetría:
+
+```sql
+SELECT * FROM telemetria LIMIT 10;
+```
+
+Consultar registros por vehículo:
+
+```sql
+SELECT * FROM telemetria
+WHERE vehiculo_id = 'CAM-001'
+LIMIT 10;
+```
+
+Consulta directa desde Docker:
+
+```bash
+docker exec -it cassandra-seed cqlsh -e "USE logitracksv; SELECT * FROM telemetria LIMIT 10;"
+```
+
+---
 
 ---
 
@@ -126,6 +216,12 @@ http://localhost:8080/swagger-ui/index.html
 * GET /api/alertas/tipo/{tipo}
 
 ---
+
+### Telemetría Cassandra
+
+* POST /api/telemetria
+* GET /api/telemetria/{vehiculoId}
+* GET /api/telemetria/{vehiculoId}/rango
 
 ## Endpoints y JSON de prueba
 
@@ -367,6 +463,36 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
+## Telemetría
+
+### POST /api/telemetria
+
+```json
+{
+  "vehiculoId": "CAM-001",
+  "fecha": "2026-05-24T10:30:00Z",
+  "latitud": 13.6929,
+  "longitud": -89.2182,
+  "velocidad": 65.5,
+  "combustible": 78.0,
+  "temperaturaMotor": 86.4
+}
+```
+
+### GET /api/telemetria/{vehiculoId}
+
+```text
+/api/telemetria/CAM-001
+```
+
+### GET /api/telemetria/{vehiculoId}/rango
+
+```text
+/api/telemetria/vehiculo/6a1347c6a33fd2659a3a2689/rango?desde=2026-05-21T18%3A52%3A31.715Z&hasta=2026-05-24T18%3A52%3A31.715Z
+```
+
+---
+
 ## Paginación
 
 Todos los endpoints soportan:
@@ -380,6 +506,134 @@ Ejemplo:
 ```text
 GET /api/vehiculos?page=0&size=5&sort=placa,asc
 ```
+
+---
+
+## Backups de MongoDB
+
+Para MongoDB se utilizó la herramienta oficial `mongodump`.
+
+### Verificar instalación
+
+```bash
+mongodump --version
+```
+
+### Crear backup manual
+
+```bash
+mongodump --db logitracksv --out C:\backup-mongo
+```
+
+El backup queda almacenado en:
+
+```text
+C:\backup-mongo\logitracksv
+```
+
+### Restaurar backup
+
+```bash
+mongorestore --db logitracksv C:\backup-mongo\logitracksv
+```
+
+### Script de backup
+
+También se creó un script `.bat` para ejecutar el backup de forma rápida:
+
+```bat
+@echo off
+mongodump --db logitracksv --out C:\backup-mongo
+echo Backup completado
+pause
+```
+
+---
+
+## Backups de Cassandra
+
+Para Cassandra se utilizó `nodetool snapshot`, ejecutado dentro del contenedor `cassandra-seed`.
+
+### Crear snapshot del keyspace
+
+```bash
+docker exec -it cassandra-seed nodetool snapshot logitracksv
+```
+
+### Buscar ubicación de snapshots
+
+```bash
+docker exec -it cassandra-seed find /var/lib/cassandra/data -name snapshots
+```
+
+### Copiar backup a la computadora local
+
+```bash
+docker cp cassandra-seed:/var/lib/cassandra/data C:\backup-cassandra
+```
+
+### Limpiar snapshots antiguos
+
+```bash
+docker exec -it cassandra-seed nodetool clearsnapshot
+```
+
+---
+
+## Software de terceros para backups de Cassandra
+
+Se investigó e instaló Medusa como herramienta externa de respaldo para Cassandra.
+
+### Crear entorno virtual con Python 3.11
+
+```bash
+py -3.11 -m venv medusa-env
+```
+
+### Activar entorno virtual
+
+```bash
+medusa-env\Scripts\activate
+```
+
+### Actualizar herramientas base
+
+```bash
+python -m pip install --upgrade pip setuptools wheel
+```
+
+### Instalar Medusa
+
+```bash
+pip install cassandra-medusa
+```
+
+### Verificar instalación
+
+```bash
+medusa --help
+```
+
+### Configuración básica de Medusa
+
+Ejemplo de archivo `medusa.ini`:
+
+```ini
+[storage]
+storage_provider = local
+
+[storage.local]
+base_path = C:\medusa-backups
+
+[cassandra]
+config_file = C:\medusa-backups\cassandra.yaml
+```
+
+### Nota sobre Medusa en este proyecto
+
+Medusa está diseñado principalmente para instalaciones de Cassandra en Linux con acceso directo al sistema de archivos de Cassandra. En este proyecto, Cassandra se ejecuta dentro de contenedores Docker sobre Windows, por lo que el backup físico funcional se realiza con `nodetool snapshot` y se extrae al host mediante `docker cp`.
+
+Medusa se mantiene como herramienta externa investigada, instalada y configurada para escenarios productivos.
 
 ---
 
@@ -423,6 +677,9 @@ Permite:
 
 ---
 
-## Autor
+## Integrantes
 
 Diego Enrique Arguera Canjura
+Irvin Alejandro Arguera Canjura
+Elisa Gabriela Giron Nolasco
+Rodrigo Ernesto Guerrero Bonilla
