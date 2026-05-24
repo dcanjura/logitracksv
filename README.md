@@ -679,7 +679,7 @@ Permite:
 
 ## Integrantes
 
-Diego Enrique Arguera Canjura
-Irvin Alejandro Arguera Canjura
-Elisa Gabriela Giron Nolasco
-Rodrigo Ernesto Guerrero Bonilla
+* Diego Enrique Arguera Canjura
+* Irvin Alejandro Arguera Canjura
+* Elisa Gabriela Giron Nolasco
+* Rodrigo Ernesto Guerrero Bonilla
