@@ -3,6 +3,7 @@ package com.project.logitracksv.service;
 import com.project.logitracksv.dto.ClienteRequestDTO;
 import com.project.logitracksv.dto.ClienteResponseDTO;
 import com.project.logitracksv.entity.ClienteEntity;
+import com.project.logitracksv.exception.ResourceNotFoundException;
 import com.project.logitracksv.mapper.ClienteMapper;
 import com.project.logitracksv.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class ClienteService {
     // READ BY ID
     public ClienteResponseDTO obtenerPorId(String id) {
         ClienteEntity entity = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
 
         return ClienteMapper.toDTO(entity);
     }
@@ -39,7 +40,7 @@ public class ClienteService {
     // UPDATE
     public ClienteResponseDTO actualizar(String id, ClienteRequestDTO dto) {
         ClienteEntity existente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
 
         existente.setNombre(dto.nombre());
         existente.setDireccion(dto.direccion());
@@ -52,6 +53,10 @@ public class ClienteService {
 
     // DELETE
     public void eliminar(String id) {
+        if (!clienteRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Cliente no encontrado");
+        }
+
         clienteRepository.deleteById(id);
     }
 
